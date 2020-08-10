@@ -17,19 +17,8 @@ function checkdApplianceStatus() {
   var lastData = getLastData('status');　　　　　//最終data取得
     
   setApplianceStatus(
-    [
-      Number(appliancedata[2].settings.temp),　　//リビングエアコンの温度設定
-      appliancedata[2].settings.mode,　　//リビングエアコンのモード設定
-      appliancedata[2].settings.button,　　//リビングエアコンのボタン
-    ],[
-      Number(appliancedata[4].settings.temp),　　//寝室エアコンの温度設定
-      appliancedata[4].settings.mode,　　//寝室エアコンのモード設定
-      appliancedata[4].settings.button,　　//寝室エアコンのボタン
-    ],
-      appliancedata[0].light.state.power,　　//キッチンの電灯の状態
-      appliancedata[1].light.state.power,　　//リビングの電灯の状態
-      appliancedata[3].light.state.power,　　//寝室の電灯の状態
-      lastData.row + 1//最終data追加作業
+    appliancedata,
+    lastData.row + 1//最終data追加作業
   );
 }
 
@@ -49,52 +38,56 @@ function getNatureRemoData(endpoint) {　　　　　　//Remoのapiをお借り
   return  JSON.parse(UrlFetchApp.fetch(url, options));
 }
 
-
-
 function setSensorData(data, row) {
   getSheet('sensor').getRange(row, 1, 1, 4).setValues([[new Date(), data.te, data.hu, data.il]])
   postTweet(Utilities.formatString("%2.1f", data.te) + "℃, " + Math.floor(data.hu) + "%");
 }
 
-function setApplianceStatus(livingData, bedData, kitchenLight, livingLight, bedLight, row) {
-  var lastLivingData = JSON.stringify(getSheet('status').getRange(row-1, 2, 1, 3).getValues());
-  var currentLivingData = JSON.stringify([livingData]);
+function setApplianceStatus(data, row) {
+  
+  var numAC = 0;
+  var numLight = 0;
+  var changed = false;
+  var newStatus = [];
+  
+  data.forEach(function(appliance) {
+    if (appliance.type == "AC"){
+      if (Number(appliance.settings.temp) != getSheet('status').getRange(row-1, 2 + numAC * 3).getValue()
+        || appliance.settings.mode !=  getSheet('status').getRange(row-1, 2 + numAC * 3 + 1) .getValue()
+        || appliance.settings.button !=  getSheet('status').getRange(row-1, 2 + numAC * 3 + 2) .getValue()){
+          postACStatus(appliance)
+          changed = true;
+        }
+      newStatus.push(Number(appliance.settings.temp));
+      newStatus.push(appliance.settings.mode);
+      newStatus.push(appliance.settings.button);
+      numAC++;
+    }      
+  });
 
-  if (lastLivingData != currentLivingData)
-    postACStatus(livingData, "living room");
+  data.forEach(function(appliance) {
+    if (appliance.type == "LIGHT"){
+      if (appliance.light.state.power != getSheet('status').getRange(row-1, 2 + numAC * 3 + numLight).getValue()){
+        postTweet(appliance.nickname + " was turned " +  appliance.light.state.power);      
+        changed = true;
+        }
+      
+      newStatus.push(appliance.light.state.power);
+      numLight++;
+    }      
+  });
 
-  var lastBedData = JSON.stringify(getSheet('status').getRange(row-1, 5, 1, 3).getValues());
-  var currentBedData = JSON.stringify([bedData]);
-
-  if (lastBedData != currentBedData)
-    postACStatus(bedData, "bedroom");
-
-  var lastKitchenLight = getSheet('status').getRange(row-1, 8).getValue();
-  if (lastKitchenLight != kitchenLight)
-      postTweet("Light in the kitchen was turned " +  kitchenLight);      
-
-  var lastLivingLight = getSheet('status').getRange(row-1, 9).getValue();　　
-  if (lastLivingLight != livingLight)
-      postTweet("Light in the living room was turned " +  livingLight);      
-
-  var lastBedLight = getSheet('status').getRange(row-1, 10).getValue();　
-  if (lastBedLight != bedLight)
-      postTweet("Light in the bedroom was turned " +  bedLight);      
-    
-  if (lastLivingData != currentLivingData || lastBedData != currentBedData || 
-      lastKitchenLight != kitchenLight || lastLivingLight != livingLight || lastBedLight != bedLight){
-      getSheet('status').getRange(row, 1).setValue(new Date())//Aにゲットした日時ほりこむ
-      getSheet('status').getRange(row, 2, 1, 3).setValues([livingData])　　
-      getSheet('status').getRange(row, 5, 1, 3).setValues([bedData])　　
-      getSheet('status').getRange(row, 8, 1, 3).setValues([[kitchenLight, livingLight, bedLight]])　　
+  if (changed){
+    getSheet('status').getRange(row, 1).setValue(new Date())//Aにゲットした日時ほりこむ
+    getSheet('status').getRange(row, 2, 1, 9).setValues([newStatus])　　
   }
 }
   
-function postACStatus(sensorData, roomName){
-  if(sensorData[2] == "power-off"){
-    postTweet("AC in the " + roomName + " was turned off");      
+function postACStatus(ac){
+  if(ac.settings.button == "power-off"){
+    postTweet(ac.nickname + " was turned off");      
   }else{
-    postTweet("AC in the " + roomName + " is running at " + sensorData[0] + "℃ in " + sensorData[1] + " mode");
+    postTweet(ac.nickname + " is running at " + ac.settings.temp + "℃ in " + ac.settings.mode + " mode");
   }
 }
   
