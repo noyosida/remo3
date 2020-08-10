@@ -4,10 +4,10 @@ Nature Remo APIを使って，センサ情報や家電の状態変化をGoogle�
 # 注意
 - https://api.nature.global/1/appliances から取得できる家電の情報は，0:ライト，1:ライト, 2:エアコン，3：ライト，4：エアコンの順になっているので，適宜checkdApplianceStatus()関数を書き換える必要がある．
 - 以下のプロパティをScript Editorから設定する必要がある．
- - SPREADSHEET_ID （スプレッドシート）
- - CONSUMER_API_SECRET (Twitter) 
- - CONSUMER_API_KEY (Twitter) 
- - REMO_ACCESS_TOKEN (REMO) 
+  - SPREADSHEET_ID （スプレッドシート）
+  - CONSUMER_API_SECRET (Twitter) 
+  - CONSUMER_API_KEY (Twitter) 
+  - REMO_ACCESS_TOKEN (REMO) 
  
 # 謝辞
 Nature Remo APIとの連携およびGoogleスプレッドシートやGoogle Studioとの連携部分については，以下のサイトのコードを利用させていただきました．
