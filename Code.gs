@@ -68,7 +68,7 @@ function setApplianceStatus(data, row) {
   data.forEach(function(appliance) {
     if (appliance.type == "LIGHT"){
       if (appliance.light.state.power != getSheet('status').getRange(row-1, 2 + numAC * 3 + numLight).getValue()){
-        postTweet(appliance.nickname + " was turned " +  appliance.light.state.power);      
+        postTweet(toEnglish(appliance.nickname) + " was turned " +  appliance.light.state.power);      
         changed = true;
         }
       
@@ -85,10 +85,8 @@ function setApplianceStatus(data, row) {
   
 function postACStatus(ac){
   if(ac.settings.button == "power-off"){
-    postTweet(ac.nickname + " was turned off");      
+    postTweet(toEnglish(ac.nickname) + " was turned off");      
   }else{
-    postTweet(ac.nickname + " is running at " + ac.settings.temp + "℃ in " + ac.settings.mode + " mode");
+    postTweet(toEnglish(ac.nickname) + " is running at " + ac.settings.temp + "℃ in " + ac.settings.mode + " mode");
   }
 }
-  
-  
