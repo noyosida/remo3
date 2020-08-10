@@ -23,8 +23,6 @@ function checkdApplianceStatus() {
 }
 
 function getNatureRemoData(endpoint) {　　　　　　//Remoのapiをお借りします
-  var url = "https://api.nature.global/1/" + endpoint;
-
   var headers = {
     "Content-Type" : "application/json;",
     'Authorization': 'Bearer ' + PropertiesService.getScriptProperties().getProperty("REMO_ACCESS_TOKEN"),
@@ -35,16 +33,40 @@ function getNatureRemoData(endpoint) {　　　　　　//Remoのapiをお借り
     "headers" : headers,
   };
 
-  return  JSON.parse(UrlFetchApp.fetch(url, options));
+  return  JSON.parse(UrlFetchApp.fetch("https://api.nature.global/1/" + endpoint, options));
 }
 
 function setSensorData(data, row) {
+  lastTe = getSheet('sensor').getRange(row - 1, 2).getValue();
+  lastHu = getSheet('sensor').getRange(row - 1, 3).getValue();
+  
   getSheet('sensor').getRange(row, 1, 1, 4).setValues([[new Date(), data.te, data.hu, data.il]])
-  postTweet(Utilities.formatString("%2.1f", data.te) + "℃, " + Math.floor(data.hu) + "%");
+  
+  var tweet = Utilities.formatString("%2.1f", data.te);
+  if (data.te - lastTe >= 0.1){
+    tweet +=  Utilities.formatString("℃ (+%2.1f), ", data.te - lastTe)  
+  }
+  else if (data.te - lastTe <= -0.1){
+    tweet += Utilities.formatString("℃ (%2.1f), ", data.te - lastTe) 
+  }
+  else{
+    tweet += "℃, "
+  }
+  
+  if (data.hu - lastHu >= 1){
+    tweet += Math.floor(data.hu) + Utilities.formatString("% (+%d)", data.hu - lastHu) 
+  }
+  else if (data.hu - lastHu <= -1){
+    tweet += Math.floor(data.hu) + Utilities.formatString("% (%d)", data.hu - lastHu)
+  }
+  else{
+    tweet += Math.floor(data.hu) + "%"
+  }
+  
+  postTweet(tweet);
 }
 
 function setApplianceStatus(data, row) {
-  
   var numAC = 0;
   var numLight = 0;
   var changed = false;
@@ -52,9 +74,9 @@ function setApplianceStatus(data, row) {
   
   data.forEach(function(appliance) {
     if (appliance.type == "AC"){
-      if (Number(appliance.settings.temp) != getSheet('status').getRange(row-1, 2 + numAC * 3).getValue()
-        || appliance.settings.mode !=  getSheet('status').getRange(row-1, 2 + numAC * 3 + 1) .getValue()
-        || appliance.settings.button !=  getSheet('status').getRange(row-1, 2 + numAC * 3 + 2) .getValue()){
+      if (Number(appliance.settings.temp) != getSheet('status').getRange(row - 1, 2 + numAC * 3).getValue()
+        || appliance.settings.mode !=  getSheet('status').getRange(row - 1, 2 + numAC * 3 + 1) .getValue()
+        || appliance.settings.button !=  getSheet('status').getRange(row - 1, 2 + numAC * 3 + 2) .getValue()){
           postACStatus(appliance)
           changed = true;
         }
@@ -67,7 +89,7 @@ function setApplianceStatus(data, row) {
 
   data.forEach(function(appliance) {
     if (appliance.type == "LIGHT"){
-      if (appliance.light.state.power != getSheet('status').getRange(row-1, 2 + numAC * 3 + numLight).getValue()){
+      if (appliance.light.state.power != getSheet('status').getRange(row - 1, 2 + numAC * 3 + numLight).getValue()){
         postTweet(toEnglish(appliance.nickname) + " was turned " +  appliance.light.state.power);      
         changed = true;
         }
