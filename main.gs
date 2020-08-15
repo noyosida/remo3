@@ -43,10 +43,11 @@ function setSensorData(data, row) {
   getSheet('sensor').getRange(row, 1, 1, 4).setValues([[new Date(), data.te, data.hu, data.il]])
   
   var tweet = Utilities.formatString("%2.1f", data.te);
-  if (data.te - lastTe >= 0.1){
+  
+  if (Math.round(data.te * 10) - Math.round(lastTe * 10) >= 1){
     tweet +=  Utilities.formatString("℃ (+%2.1f), ", data.te - lastTe)  
   }
-  else if (data.te - lastTe <= -0.1){
+  else if (Math.round(data.te * 10) - Math.round(lastTe * 10) <= -1){
     tweet += Utilities.formatString("℃ (%2.1f), ", data.te - lastTe) 
   }
   else{
@@ -54,13 +55,13 @@ function setSensorData(data, row) {
   }
   
   if (data.hu - lastHu >= 1){
-    tweet += Math.floor(data.hu) + Utilities.formatString("% (+%d)", data.hu - lastHu) 
+    tweet += data.hu + Utilities.formatString("% (+%d)", data.hu - lastHu) 
   }
   else if (data.hu - lastHu <= -1){
-    tweet += Math.floor(data.hu) + Utilities.formatString("% (%d)", data.hu - lastHu)
+    tweet += data.hu + Utilities.formatString("% (%d)", data.hu - lastHu)
   }
   else{
-    tweet += Math.floor(data.hu) + "%"
+    tweet += data.hu + "%"
   }
   
   postTweet(tweet);
