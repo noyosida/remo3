@@ -1,6 +1,14 @@
 function recordSensorData() {
   var devicedata = getNatureRemoData("devices");　　　　//data取得
   var lastData = getLastData("sensor");　　　　　//最終data取得
+
+  postSensorData(
+    {
+      te:devicedata[0].newest_events.te.val,　　//温度
+      hu:devicedata[0].newest_events.hu.val,　　//湿度
+    },
+    lastData.row
+  );
   
   setSensorData(
       {
@@ -36,35 +44,8 @@ function getNatureRemoData(endpoint) {　　　　　　//Remoのapiをお借り
   return  JSON.parse(UrlFetchApp.fetch("https://api.nature.global/1/" + endpoint, options));
 }
 
-function setSensorData(data, row) {
-  lastTe = getSheet('sensor').getRange(row - 1, 2).getValue();
-  lastHu = getSheet('sensor').getRange(row - 1, 3).getValue();
-  
+function setSensorData(data, row) {  
   getSheet('sensor').getRange(row, 1, 1, 4).setValues([[new Date(), data.te, data.hu, data.il]])
-  
-  var tweet = Utilities.formatString("%2.1f", data.te);
-  
-  if (Math.round(data.te * 10) - Math.round(lastTe * 10) >= 1){
-    tweet +=  Utilities.formatString("℃ (+%2.1f), ", data.te - lastTe)  
-  }
-  else if (Math.round(data.te * 10) - Math.round(lastTe * 10) <= -1){
-    tweet += Utilities.formatString("℃ (%2.1f), ", data.te - lastTe) 
-  }
-  else{
-    tweet += "℃, "
-  }
-  
-  if (data.hu - lastHu >= 1){
-    tweet += data.hu + Utilities.formatString("% (+%d)", data.hu - lastHu) 
-  }
-  else if (data.hu - lastHu <= -1){
-    tweet += data.hu + Utilities.formatString("% (%d)", data.hu - lastHu)
-  }
-  else{
-    tweet += data.hu + "%"
-  }
-  
-  postTweet(tweet);
 }
 
 function setApplianceStatus(data, row) {
@@ -105,7 +86,36 @@ function setApplianceStatus(data, row) {
     getSheet('status').getRange(row, 2, 1, 9).setValues([newStatus])　　
   }
 }
+ 
+function postSensorData(data, row){
+  lastTe = getSheet('sensor').getRange(row, 2).getValue();
+  lastHu = getSheet('sensor').getRange(row, 3).getValue();
+ 
+  var tweet = Utilities.formatString("%2.1f", data.te);
   
+  if (Math.round(data.te * 10) - Math.round(lastTe * 10) >= 1){
+    tweet +=  Utilities.formatString("℃ (+%2.1f), ", data.te - lastTe)  
+  }
+  else if (Math.round(data.te * 10) - Math.round(lastTe * 10) <= -1){
+    tweet += Utilities.formatString("℃ (%2.1f), ", data.te - lastTe) 
+  }
+  else{
+    tweet += "℃, "
+  }
+  
+  if (data.hu - lastHu >= 1){
+    tweet += data.hu + Utilities.formatString("% (+%d)", data.hu - lastHu) 
+  }
+  else if (data.hu - lastHu <= -1){
+    tweet += data.hu + Utilities.formatString("% (%d)", data.hu - lastHu)
+  }
+  else{
+    tweet += data.hu + "%"
+  }
+  
+  postTweet(tweet);
+}
+
 function postACStatus(ac){
   if(ac.settings.button == "power-off"){
     postTweet(toEnglish(ac.nickname) + " was turned off");      
