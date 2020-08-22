@@ -1,34 +1,27 @@
 function postTweet(tweet){
 
   var twitterService = getService();
-  
   if (twitterService.hasAccess()) {
     // 投稿
-    var currentdate = new Date();
-    var twMethod = { method:"POST" };
-    var tweet = tweet + " - " + Utilities.formatDate(currentdate, "JST", "MMM d (E) h:mm a");
-    twMethod.payload = { status: tweet };
-    var response = twitterService.fetch("https://api.twitter.com/1.1/statuses/update.json", twMethod);
-    
+    var tweet = tweet + " - " + Utilities.formatDate(new Date(), "JST", "MMM d (E) h:mm a");
+    var sendOption = {
+      'method':"POST", 
+      'payload':{status: tweet}
+    }
+    twitterService.fetch("https://api.twitter.com/1.1/statuses/update.json", sendOption);   
   } else {
     Logger.log(service.getLastError());
   }
-    
 }  
 
 function postTweetWithImage(tweet, image){
-  var imageOption = {
-    'method':"POST",
-    'payload':{'media_data':image}
-  };
-  /*
-  /  media/uploadに画像をbase64にエンコードしてPOSTし
-  /  statusesのin_replay_to_status_idパラメータに戻ってきたJSONのmedia_id_stringを指定する
-  /
-  */
+
   var twitterService = getService();
   if (twitterService.hasAccess()) {
-  
+     var imageOption = {
+       'method':"POST",
+       'payload':{'media_data':image}
+     };
     var image_upload = JSON.parse(twitterService.fetch("https://upload.twitter.com/1.1/media/upload.json",imageOption));
     tweet = tweet + " - " + Utilities.formatDate(new Date(), "JST", "MMM d (E) h:mm a");
     var sendOption = {
@@ -40,7 +33,6 @@ function postTweetWithImage(tweet, image){
     Logger.log(service.getLastError());
   }      
 }  
-  
   
 // 認証用URL取得
 function getOAuthURL() {

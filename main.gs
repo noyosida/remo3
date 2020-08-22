@@ -94,10 +94,10 @@ function postSensorData(data, row){
   var tweet = Utilities.formatString("%2.1f", data.te);
   
   if (Math.round(data.te * 10) - Math.round(lastTe * 10) >= 1){
-    tweet +=  Utilities.formatString("℃ (+%2.1f), ", data.te - lastTe)  
+    tweet +=  Utilities.formatString("℃ (+%2.1f), ", (Math.round(data.te * 10) - Math.round(lastTe * 10))/10)  
   }
   else if (Math.round(data.te * 10) - Math.round(lastTe * 10) <= -1){
-    tweet += Utilities.formatString("℃ (%2.1f), ", data.te - lastTe) 
+    tweet += Utilities.formatString("℃ (%2.1f), ",  (Math.round(data.te * 10) - Math.round(lastTe * 10))/10) 
   }
   else{
     tweet += "℃, "
@@ -114,6 +114,12 @@ function postSensorData(data, row){
   }
   
   var range = getSheet('sensor').getRange(row-24, 1, 24, 3) 
+  var chart = getTEMPandHUMChart(range);
+  var image64 = Utilities.base64Encode(chart.getBlob().getBytes())  
+  postTweetWithImage(tweet, image64)
+}
+
+function getTEMPandHUMChart(range){
   var chart = getSheet('sensor').newChart()
   .setChartType(Charts.ChartType.LINE) 
   .addRange(range)
@@ -126,9 +132,8 @@ function postSensorData(data, row){
     1: {title:'%'}, 
   })
   .build();
-  
-  var image64 = Utilities.base64Encode(chart.getBlob().getBytes())  
-  postTweetWithImage(tweet, image64)
+
+  return chart;
 }
 
 function postACStatus(ac){
