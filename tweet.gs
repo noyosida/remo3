@@ -10,13 +10,37 @@ function postTweet(tweet){
     twMethod.payload = { status: tweet };
     var response = twitterService.fetch("https://api.twitter.com/1.1/statuses/update.json", twMethod);
     
-    Logger.log(response.getContentText());
-    
   } else {
     Logger.log(service.getLastError());
   }
     
 }  
+
+function postTweetWithImage(tweet, image){
+  var imageOption = {
+    'method':"POST",
+    'payload':{'media_data':image}
+  };
+  /*
+  /  media/uploadに画像をbase64にエンコードしてPOSTし
+  /  statusesのin_replay_to_status_idパラメータに戻ってきたJSONのmedia_id_stringを指定する
+  /
+  */
+  var twitterService = getService();
+  if (twitterService.hasAccess()) {
+  
+    var image_upload = JSON.parse(twitterService.fetch("https://upload.twitter.com/1.1/media/upload.json",imageOption));
+    tweet = tweet + " - " + Utilities.formatDate(new Date(), "JST", "MMM d (E) h:mm a");
+    var sendOption = {
+      'method':"POST", 
+      'payload':{status: tweet, 'media_ids':image_upload['media_id_string']}
+    }
+    twitterService.fetch("https://api.twitter.com/1.1/statuses/update.json", sendOption);
+  } else {
+    Logger.log(service.getLastError());
+  }      
+}  
+  
   
 // 認証用URL取得
 function getOAuthURL() {
