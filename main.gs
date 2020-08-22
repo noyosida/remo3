@@ -92,30 +92,22 @@ function postSensorData(data, row){
   lastHu = getSheet('sensor').getRange(row, 3).getValue();
  
   var tweet = Utilities.formatString("%2.1f", data.te);
-  
-  if (Math.round(data.te * 10) - Math.round(lastTe * 10) >= 1){
-    tweet +=  Utilities.formatString("℃ (+%2.1f), ", (Math.round(data.te * 10) - Math.round(lastTe * 10))/10)  
-  }
-  else if (Math.round(data.te * 10) - Math.round(lastTe * 10) <= -1){
-    tweet += Utilities.formatString("℃ (%2.1f), ",  (Math.round(data.te * 10) - Math.round(lastTe * 10))/10) 
-  }
-  else{
+  if (Math.round(data.te * 10) - Math.round(lastTe * 10) >= 1 || Math.round(data.te * 10) - Math.round(lastTe * 10) <= -1){
+    tweet +=  Utilities.formatString("℃ (%+2.1f), ", (Math.round(data.te * 10) - Math.round(lastTe * 10))/10)  
+  }else{
     tweet += "℃, "
   }
   
-  if (data.hu - lastHu >= 1){
-    tweet += data.hu + Utilities.formatString("% (+%d)", data.hu - lastHu) 
-  }
-  else if (data.hu - lastHu <= -1){
-    tweet += data.hu + Utilities.formatString("% (%d)", data.hu - lastHu)
-  }
-  else{
+  if (data.hu - lastHu >= 1 || data.hu - lastHu <= -1){
+    tweet += data.hu + Utilities.formatString("% (%+d)", data.hu - lastHu) 
+  }else{
     tweet += data.hu + "%"
   }
   
   var range = getSheet('sensor').getRange(row-24, 1, 24, 3) 
   var chart = getTEMPandHUMChart(range);
   var image64 = Utilities.base64Encode(chart.getBlob().getBytes())  
+  
   postTweetWithImage(tweet, image64)
 }
 
