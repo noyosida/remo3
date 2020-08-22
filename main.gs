@@ -113,7 +113,46 @@ function postSensorData(data, row){
     tweet += data.hu + "%"
   }
   
-  postTweet(tweet);
+  var range = getSheet('sensor').getRange(row-24, 1, 24, 3)  
+  var chart = getSheet('sensor').newChart()
+  .setChartType(Charts.ChartType.LINE) 
+  .addRange(range)
+  .setPosition(1,5,0,0)
+  .setOption("series", {
+    0: {targetAxisIndex:0, labelInLegend: "TEMP"}, // 第1系列は左のY軸を使用
+    1: {targetAxisIndex:1, labelInLegend: "HUM"}, // 第2系列は右のY軸を使用 
+  })
+  .setOption("vAxes", {
+    0: {title:'℃',viewWindow: {min:25}}, 
+    1: {title:'%',viewWindow: {min:40}}, 
+  })
+  .build();
+  
+  var image64 = Utilities.base64Encode(chart.getBlob().getBytes())  
+  var imageOption = {
+    'method':"POST",
+    'payload':{'media_data':image64}
+  };
+  /*
+  /  media/uploadに画像をbase64にエンコードしてPOSTし
+  /  statusesのin_replay_to_status_idパラメータに戻ってきたJSONのmedia_id_stringを指定する
+  /
+  */
+  var twitterService = getService();
+  if (twitterService.hasAccess()) {
+  
+    var image_upload = JSON.parse(twitterService.fetch("https://upload.twitter.com/1.1/media/upload.json",imageOption));
+    tweet = tweet + " - " + Utilities.formatDate(new Date(), "JST", "MMM d (E) h:mm a");
+    var sendOption = {
+      'method':"POST", 
+      'payload':{status: tweet, 'media_ids':image_upload['media_id_string']}
+    }
+    twitterService.fetch("https://api.twitter.com/1.1/statuses/update.json", sendOption);
+  } else {
+    Logger.log(service.getLastError());
+  }
+    
+//  postTweet(tweet);
 }
 
 function postACStatus(ac){
