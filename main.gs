@@ -113,7 +113,7 @@ function postSensorData(data, row){
     tweet += data.hu + "%"
   }
   
-  var range = getSheet('sensor').getRange(row-24, 1, 24, 3)  
+  var range = getSheet('sensor').getRange(row-24, 1, 24, 3) 
   var chart = getSheet('sensor').newChart()
   .setChartType(Charts.ChartType.LINE) 
   .addRange(range)
@@ -122,8 +122,8 @@ function postSensorData(data, row){
     1: {targetAxisIndex:1, labelInLegend: "HUM"}, // 第2系列は右のY軸を使用 
   })
   .setOption("vAxes", {
-    0: {title:'℃',viewWindow: {min:25.5}}, 
-    1: {title:'%',viewWindow: {min:38}}, 
+    0: {title:'℃'}, 
+    1: {title:'%'}, 
   })
   .build();
   
