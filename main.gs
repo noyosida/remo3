@@ -91,11 +91,12 @@ function postSensorData(data, row){
   lastTe = getSheet('sensor').getRange(row, 2).getValue();
   lastHu = getSheet('sensor').getRange(row, 3).getValue();
  
-  var tweet = Utilities.formatString("%2.1f", data.te);
-  if (Math.round(data.te * 10) - Math.round(lastTe * 10) >= 1 || Math.round(data.te * 10) - Math.round(lastTe * 10) <= -1){
-    tweet +=  Utilities.formatString("℃ (%+2.1f), ", (Math.round(data.te * 10) - Math.round(lastTe * 10))/10)  
+  var tweet = Utilities.formatString("%2.1f℃", data.te);
+  if (Math.round(data.te * 10) - Math.round(lastTe * 10) >= 1 
+  || Math.round(data.te * 10) - Math.round(lastTe * 10) <= -1){
+    tweet +=  Utilities.formatString(" (%+2.1f), ", (Math.round(data.te * 10) - Math.round(lastTe * 10))/10)  
   }else{
-    tweet += "℃, "
+    tweet += ", "
   }
   
   if (data.hu - lastHu >= 1 || data.hu - lastHu <= -1){
@@ -106,9 +107,9 @@ function postSensorData(data, row){
   
   var range = getSheet('sensor').getRange(row-24, 1, 24, 3) 
   var chart = getTEMPandHUMChart(range);
-  var image64 = Utilities.base64Encode(chart.getBlob().getBytes())  
+  var encodedImage = Utilities.base64Encode(chart.getBlob().getBytes())  
   
-  postTweetWithImage(tweet, image64)
+  postTweetWithImage(tweet, encodedImage)
 }
 
 function getTEMPandHUMChart(range){
@@ -116,8 +117,8 @@ function getTEMPandHUMChart(range){
   .setChartType(Charts.ChartType.LINE) 
   .addRange(range)
   .setOption("series", {
-    0: {targetAxisIndex:0, labelInLegend: "TEMP"}, // 第1系列は左のY軸を使用
-    1: {targetAxisIndex:1, labelInLegend: "HUM"}, // 第2系列は右のY軸を使用 
+    0: {targetAxisIndex:0, labelInLegend: "TEMP", color: 'red'}, // 第1系列は左のY軸を使用
+    1: {targetAxisIndex:1, labelInLegend: "HUM", color: 'blue'}, // 第2系列は右のY軸を使用 
   })
   .setOption("vAxes", {
     0: {title:'℃'}, 
