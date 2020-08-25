@@ -13,7 +13,7 @@ function recordSensorData() {
     ote:(weatherData.main.temp-273.15),　　
     ohu:weatherData.main.humidity,　　
     opr:weatherData.main.pressure,
-    id:weatherData.weather[0].id,
+    icon:weatherData.weather[0].icon,
     desc:weatherData.weather[0].description,
   }
   
@@ -124,22 +124,25 @@ function postSensorData(data, row){
   
   tweet += "\n"
   
-  if(data.id == 800){
+  if(data.icon == "01d"){
     tweet += "☀️"
   }
-  else if(data.id >= 801 && data.id <= 805){
+  else if(data.icon == "01n"){
+    tweet += "⭐️️"
+  }
+  else if(data.icon.indexOf("03") || data.icon.indexOf("04")){
     tweet += "☁️"
   }
-  else if(data.id >= 700 && data.id < 800){
+  else if(data.icon.indexOf("50")){
     tweet += "🌫"
   }  
-  else if(data.id >= 600 && data.id < 700){
+  else if(data.icon.indexOf("13")){
     tweet += "⛄️"
   }  
-  else if(data.id >= 300 && data.id < 600){
+  else if(data.icon.indexOf("09") || data.icon.indexOf("10")){
     tweet += "☔️"
   }  
-  else if(data.id >= 200 && data.id < 300){
+  else if(data.icon.indexOf("11")){
     tweet += "⛈"
   }  
 
