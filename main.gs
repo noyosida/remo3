@@ -3,29 +3,26 @@ function recordSensorData() {
   var lastSensorData = getLastData("sensor");　　　　　//最終data取得
   var weatherData = getWeatherData();　　　　//data取得
 
-  postSensorData(
-    {
-      te:deviceData[0].newest_events.te.val,　　//温度
-      hu:deviceData[0].newest_events.hu.val,　　//湿度
-      ote:(weatherData.main.temp-273.15),　　
-      ohu:weatherData.main.humidity,　　
-      opr:weatherData.main.pressure,
-    },
-    lastSensorData.row
-  );
+  Logger.log('rain' in weatherData);
+  Logger.log('main' in weatherData);
+
+  var arg = {
+    te:deviceData[0].newest_events.te.val,　　//温度
+    hu:deviceData[0].newest_events.hu.val,　　//湿度
+    il:deviceData[0].newest_events.il.val,　　//照度
+    ote:(weatherData.main.temp-273.15),　　
+    ohu:weatherData.main.humidity,　　
+    opr:weatherData.main.pressure,
+    id:weatherData.weather[0].id,
+    desc:weatherData.weather[0].description,
+  }
   
-  
-  setSensorData(
-      {
-        te:deviceData[0].newest_events.te.val,　　//温度
-        hu:deviceData[0].newest_events.hu.val,　　//湿度
-        il:deviceData[0].newest_events.il.val,　　//照度
-        ote:(weatherData.main.temp-273.15),　　
-        ohu:weatherData.main.humidity,　　
-        opr:weatherData.main.pressure,　
-      },
-    lastSensorData.row + 1//最終data追加作業
-  );
+  if('rain' in weatherData){
+    arg["rain"] = weatherData.rain["1h"];
+  }
+      
+  postSensorData(arg, lastSensorData.row);
+  setSensorData(arg, lastSensorData.row + 1);
 }
 
 function checkdApplianceStatus() {
@@ -49,7 +46,7 @@ function getNatureRemoData(endpoint) {　　　　　　//Remoのapiをお借り
     "headers" : headers,
   };
 
-  return  JSON.parse(UrlFetchApp.fetch("https://api.nature.global/1/" + endpoint, options));
+  return JSON.parse(UrlFetchApp.fetch("https://api.nature.global/1/" + endpoint, options));
 }
 
 function getWeatherData(){
@@ -60,7 +57,7 @@ function getWeatherData(){
 }
 
 function setSensorData(data, row) {  
-  getSheet('sensor').getRange(row, 1, 1, 7).setValues([[new Date(), data.te, data.hu, data.il, data.ote, data.ohu, data.opr]])
+  getSheet('sensor').getRange(row, 1, 1, 8).setValues([[new Date(), data.te, data.hu, data.il, data.ote, data.ohu, data.opr, data.rain]])
 }
 
 function setApplianceStatus(data, row) {
@@ -103,22 +100,50 @@ function setApplianceStatus(data, row) {
 }
  
 function postSensorData(data, row){
-  lastTe = getSheet('sensor').getRange(row, 2).getValue();
-  lastHu = getSheet('sensor').getRange(row, 3).getValue();
-  lastOte = getSheet('sensor').getRange(row, 5).getValue();
-  lastOhu = getSheet('sensor').getRange(row, 6).getValue();
-  lastOpr = getSheet('sensor').getRange(row, 7).getValue();
- 
-  var tweet = "🏠" + generateTEMPString (lastTe, data.te) + ', ' + generateHUMString (lastHu, data.hu) + "\n"
-  
-  tweet += "⛺" + generateTEMPString (lastOte, data.ote) + ', ' + generateHUMString (lastOhu, data.ohu) + ", "
+  var lastTe = getSheet('sensor').getRange(row, 2).getValue();
+  var lastHu = getSheet('sensor').getRange(row, 3).getValue();
+  var lastOte = getSheet('sensor').getRange(row, 5).getValue();
+  var lastOhu = getSheet('sensor').getRange(row, 6).getValue();
+  var lastOpr = getSheet('sensor').getRange(row, 7).getValue();
 
-  if (data.opr - lastOpr >= 1 || data.opr - lastOpr <= -1){
-    tweet += data.opr + Utilities.formatString("hPa (%+d)", data.opr - lastOpr) 
-  }else{
-    tweet += data.opr + "hPa"
+  var lastRain = 0;
+  if (!getSheet('sensor').getRange(row, 8).isBlank()){
+    lastRain = getSheet('sensor').getRange(row, 8).getValue();
   }
-  tweet += "\n"  
+  
+  var tweet = "🏠" 
+  + generateFloatingPointValueString (lastTe, data.te, "℃") + ', ' 
+  + generateIntegerValueString (lastHu, data.hu, "%") + "\n"
+  + "⛺" + generateFloatingPointValueString (lastOte, data.ote, "℃") + ', ' 
+  + generateIntegerValueString (lastOhu, data.ohu, "%") + ", " 
+  + generateIntegerValueString (lastOpr, data.opr, "hPa") 
+  
+  if ('rain' in data){
+    tweet += ", "  + generateFloatingPointValueString (lastRain, data.rain, "mm") 
+  }
+  
+  tweet += "\n"
+  
+  if(data.id == 800){
+    tweet += "☀️"
+  }
+  else if(data.id >= 801 && data.id <= 805){
+    tweet += "☁️"
+  }
+  else if(data.id >= 700 && data.id < 800){
+    tweet += "🌫"
+  }  
+  else if(data.id >= 600 && data.id < 700){
+    tweet += "⛄️"
+  }  
+  else if(data.id >= 300 && data.id < 600){
+    tweet += "☔️"
+  }  
+  else if(data.id >= 200 && data.id < 300){
+    tweet += "⛈"
+  }  
+
+  tweet += data.desc + "\n"  
   
   var range = getSheet('sensor').getRange(row-24, 1, 24, 3) 
   var chart = getTEMPandHUMChart(range);
@@ -127,8 +152,8 @@ function postSensorData(data, row){
   postTweetWithImage(tweet, encodedImage)
 }
 
-function generateTEMPString (last, current){
-  var string = Utilities.formatString("%2.1f℃", current)
+function generateFloatingPointValueString (last, current, unit){
+  var string = Utilities.formatString("%2.1f%s", current, unit)
   
   if (Math.round(current * 10) - Math.round(last * 10) >= 1 
   || Math.round(current * 10) - Math.round(last * 10) <= -1){
@@ -138,11 +163,11 @@ function generateTEMPString (last, current){
   return string;
 }
 
-function generateHUMString (last, current){
+function generateIntegerValueString (last, current, unit){
   if (current - last >= 1 || current - last <= -1){
-    return current + Utilities.formatString("% (%+d)", current - last) 
+    return current + Utilities.formatString("%s (%+d)", unit, current - last) 
   }else{
-    return current + "%"
+    return current + unit
   }
 }
 
