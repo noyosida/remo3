@@ -2,7 +2,8 @@ function recordSensorData() {
   var deviceData = getNatureRemoData("devices");　　　　//data取得
   var lastSensorData = getLastData("sensor");　　　　　//最終data取得
   var weatherData = getWeatherData();　　　　//data取得
-
+  const absoluteZero = -273.15
+  
   Logger.log('rain' in weatherData);
   Logger.log('main' in weatherData);
 
@@ -10,7 +11,7 @@ function recordSensorData() {
     te:deviceData[0].newest_events.te.val,　　//温度
     hu:deviceData[0].newest_events.hu.val,　　//湿度
     il:deviceData[0].newest_events.il.val,　　//照度
-    ote:(weatherData.main.temp-273.15),　　
+    ote:(weatherData.main.temp + absoluteZero),　　
     ohu:weatherData.main.humidity,　　
     opr:weatherData.main.pressure,
     icon:weatherData.weather[0].icon,
@@ -122,37 +123,41 @@ function postSensorData(data, row){
     tweet += ", "  + generateFloatingPointValueString (lastRain, data.rain, "mm") 
   }
   
-  tweet += "\n"
-  
-  if(data.icon == "01d"){
-    tweet += "☀️"
-  }
-  else if(data.icon == "01n"){
-    tweet += "⭐️️"
-  }
-  else if(data.icon.indexOf("03") || data.icon.indexOf("04")){
-    tweet += "☁️"
-  }
-  else if(data.icon.indexOf("50")){
-    tweet += "🌫"
-  }  
-  else if(data.icon.indexOf("13")){
-    tweet += "⛄️"
-  }  
-  else if(data.icon.indexOf("09") || data.icon.indexOf("10")){
-    tweet += "☔️"
-  }  
-  else if(data.icon.indexOf("11")){
-    tweet += "⛈"
-  }  
-
-  tweet += data.desc + "\n"  
+  tweet += "\n" + getWeatherEmoji(data.icon) + data.desc + "\n"  
   
   var range = getSheet('sensor').getRange(row-24, 1, 24, 3) 
   var chart = getTEMPandHUMChart(range);
   var encodedImage = Utilities.base64Encode(chart.getBlob().getBytes())  
-  
   postTweetWithImage(tweet, encodedImage)
+}
+
+function getWeatherEmoji(id){
+
+  Logger.log(id);
+  
+  if(id == "01d"){
+    return "☀️"
+  }
+  else if(id == "01n"){
+    return "⭐️️"
+  }
+  else if(id.indexOf("03") || data.icon.indexOf("04")){
+    return "☁️"
+  }
+  else if(id.indexOf("50")){
+    return "🌫"
+  }  
+  else if(id.indexOf("13")){
+    return "⛄️"
+  }  
+  else if(id.indexOf("09") || id.indexOf("10")){
+    return "☔️"
+  }  
+  else if(id.indexOf("11")){
+    return "⛈"
+  }
+  else
+    return ""; //OpenWeatherMap側に大幅な仕様変更がない限り，ここにはこない
 }
 
 function generateFloatingPointValueString (last, current, unit){
