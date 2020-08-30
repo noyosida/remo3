@@ -23,25 +23,10 @@ function recordSensorData() {
   postSensorData(arg, lastSensorData + 1);
 }
 
-function getNatureRemoData(endpoint) {　　　　　　//Remoのapiをお借りします
-  var headers = {
-    "Content-Type" : "application/json;",
-    'Authorization': 'Bearer ' + PropertiesService.getScriptProperties().getProperty("REMO_ACCESS_TOKEN"),
-  };
-
-  var options = {
-    "method" : "get",
-    "headers" : headers,
-  };
-
-  return JSON.parse(UrlFetchApp.fetch("https://api.nature.global/1/" + endpoint, options));
-}
-
 function setSensorData(data, row) {  
   getSheet('sensor').getRange(row, 1, 1, 8).setValues([[new Date(), data.te, data.hu, data.il, data.ote, data.ohu, data.opr, data.rain]])
 }
 
- 
 function postSensorData(data, row){
   var lastTe = getSheet('sensor').getRange(row - 1, 2).getValue();
   var lastHu = getSheet('sensor').getRange(row - 1, 3).getValue();
