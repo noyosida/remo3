@@ -1,5 +1,3 @@
-const openWeatherMapURL = "http://api.openweathermap.org/data/2.5/"
-
 function postHourlyForecast(){
   const forecastData = getWeatherData('hourly');
   let tweet = ""
@@ -43,8 +41,7 @@ function postDailyForecast(){
 }
 
 function getWeatherData(type){
-  let url = openWeatherMapURL 
-  + "onecall?lat=" 
+  let url = "http://api.openweathermap.org/data/2.5/onecall?lat=" 
   + PropertiesService.getScriptProperties().getProperty("LAT")
   + "&lon=" 
   + PropertiesService.getScriptProperties().getProperty("LON") 
