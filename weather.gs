@@ -1,11 +1,10 @@
-function postForecast(){
-  var url = "http://api.openweathermap.org/data/2.5/onecall?lat=34.98&lon=135.75&exclude=daily,current,minutely&" + PropertiesService.getScriptProperties().getProperty("ZIP_CODE") + "&APPID=" + PropertiesService.getScriptProperties().getProperty("WEATHER_API_KEY");
-  var response = UrlFetchApp.fetch(url);
-  var forecastData = JSON.parse(response);
+const openWeatherMapURL = "http://api.openweathermap.org/data/2.5/"
 
-  var tweet = "Hourly Weather: \n"
+function postForecast(){
+  const forecastData = getHourlyForecastData();
+  let tweet = ""
   
-  for( var i = 0; i < 12; i++) { 
+  for( var i = 1; i <= 12; i++) { 
     date = new Date(forecastData.hourly[i].dt * 1000)
     tweet += Utilities.formatDate(date,"JST", "ha: ") 
     + getWeatherEmoji(forecastData.hourly[i].weather[0].icon)
@@ -22,9 +21,27 @@ function postForecast(){
   postTweet(tweet)
 }
 
+function getHourlyForecastData(){
+  const url = openWeatherMapURL 
+  + "onecall?lat=" 
+  + PropertiesService.getScriptProperties().getProperty("LAT")
+  + "&lon=" 
+  + PropertiesService.getScriptProperties().getProperty("LON") 
+  + "&exclude=daily,current,minutely&" 
+  + "&APPID=" 
+  + PropertiesService.getScriptProperties().getProperty("WEATHER_API_KEY");
+  const response = UrlFetchApp.fetch(url);
+  
+  return JSON.parse(response);  
+}
+
 function getWeatherData(){
-  var url = "http://api.openweathermap.org/data/2.5/weather?zip=" + PropertiesService.getScriptProperties().getProperty("ZIP_CODE") + "&APPID=" + PropertiesService.getScriptProperties().getProperty("WEATHER_API_KEY");
-  var response = UrlFetchApp.fetch(url);
+  const url = openWeatherMapURL 
+  + "weather?zip=" 
+  + PropertiesService.getScriptProperties().getProperty("ZIP_CODE") 
+  + "&APPID="
+  + PropertiesService.getScriptProperties().getProperty("WEATHER_API_KEY");
+  const response = UrlFetchApp.fetch(url);
   
   return JSON.parse(response);
 }

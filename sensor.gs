@@ -1,7 +1,7 @@
 function recordSensorData() {
-  var deviceData = getNatureRemoData("devices");　　　　//data取得
-  var lastSensorData = getLastData("sensor");　　　　　//最終data取得
-  var weatherData = getWeatherData();　　　　//data取得
+  const deviceData = getNatureRemoData("devices");　　　　//data取得
+  const lastSensorData = getLastData("sensor");　　　　　//最終data取得
+  const weatherData = getWeatherData();　　　　//data取得
   const absoluteZero = -273.15
   
   var arg = {
@@ -28,18 +28,18 @@ function setSensorData(data, row) {
 }
 
 function postSensorData(data, row){
-  var lastTe = getSheet('sensor').getRange(row - 1, 2).getValue();
-  var lastHu = getSheet('sensor').getRange(row - 1, 3).getValue();
-  var lastOte = getSheet('sensor').getRange(row - 1, 5).getValue();
-  var lastOhu = getSheet('sensor').getRange(row - 1, 6).getValue();
-  var lastOpr = getSheet('sensor').getRange(row - 1, 7).getValue();
+  const lastTe = getSheet('sensor').getRange(row - 1, 2).getValue();
+  const lastHu = getSheet('sensor').getRange(row - 1, 3).getValue();
+  const lastOte = getSheet('sensor').getRange(row - 1, 5).getValue();
+  const lastOhu = getSheet('sensor').getRange(row - 1, 6).getValue();
+  const lastOpr = getSheet('sensor').getRange(row - 1, 7).getValue();
 
-  var lastRain = 0;
+  let lastRain = 0;
   if (!getSheet('sensor').getRange(row -1 , 8).isBlank()){
     lastRain = getSheet('sensor').getRange(row - 1 , 8).getValue();
   }
   
-  var tweet = "🏠" 
+  let tweet = "🏠" 
   + generateFloatingPointValueString (lastTe, data.te, "℃") + ', ' 
   + generateIntegerValueString (lastHu, data.hu, "%") + "\n"
   + "⛺" + generateFloatingPointValueString (lastOte, data.ote, "℃") + ', ' 
@@ -52,14 +52,14 @@ function postSensorData(data, row){
   
   tweet += "\n" + getWeatherEmoji(data.icon) + data.desc + "\n"  
   
-  var range = getSheet('sensor').getRange(row-23, 1, 24, 3) 
-  var chart = getTEMPandHUMChart(range);
-  var encodedImage = Utilities.base64Encode(chart.getBlob().getBytes())  
+  const range = getSheet('sensor').getRange(row-23, 1, 24, 3) 
+  const chart = getTEMPandHUMChart(range);
+  const encodedImage = Utilities.base64Encode(chart.getBlob().getBytes())  
   postTweetWithImage(tweet, encodedImage)
 }
 
 function generateFloatingPointValueString (last, current, unit){
-  var string = Utilities.formatString("%2.1f%s", current, unit)
+  let string = Utilities.formatString("%2.1f%s", current, unit)
   
   if (Math.round(current * 10) - Math.round(last * 10) >= 1 
   || Math.round(current * 10) - Math.round(last * 10) <= -1){
@@ -78,7 +78,7 @@ function generateIntegerValueString (last, current, unit){
 }
 
 function getTEMPandHUMChart(range){
-  var chart = getSheet('sensor').newChart()
+  return getSheet('sensor').newChart()
   .setChartType(Charts.ChartType.LINE) 
   .addRange(range)
   .setOption("series", {
@@ -90,6 +90,4 @@ function getTEMPandHUMChart(range){
     1: {title:'%'}, 
   })
   .build();
-
-  return chart;
 }

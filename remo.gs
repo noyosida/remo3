@@ -1,10 +1,10 @@
 function getNatureRemoData(endpoint) {　　　　　　//Remoのapiをお借りします
-  var headers = {
+  const headers = {
     "Content-Type" : "application/json;",
     'Authorization': 'Bearer ' + PropertiesService.getScriptProperties().getProperty("REMO_ACCESS_TOKEN"),
   };
 
-  var options = {
+  const options = {
     "method" : "get",
     "headers" : headers,
   };

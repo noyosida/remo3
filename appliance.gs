@@ -1,6 +1,6 @@
 function checkdApplianceStatus() {
-  var appliancedata = getNatureRemoData("appliances");　　　　//data取得
-  var lastData = getLastData('status');　　　　　//最終data取得
+  const appliancedata = getNatureRemoData("appliances");　　　　//data取得
+  const lastData = getLastData('status');　　　　　//最終data取得
     
   setApplianceStatus(
     appliancedata,
@@ -9,10 +9,10 @@ function checkdApplianceStatus() {
 }
 
 function setApplianceStatus(data, row) {
-  var numAC = 0;
-  var numLight = 0;
-  var changed = false;
-  var newStatus = [];
+  let numAC = 0;
+  let numLight = 0;
+  let changed = false;
+  let newStatus = [];
   
   data.forEach(function(appliance) {
     if (appliance.type == "AC"){

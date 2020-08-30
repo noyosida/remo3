@@ -7,7 +7,7 @@ const translationMap = new Map([["寝室照明", "Light in the bedroom"],
 
                                 
 function toEnglish(nickname){
-  var translation = translationMap.get(nickname);
+  const translation = translationMap.get(nickname);
   if (!translation){
     return nickname;
   }

@@ -1,6 +1,6 @@
 function postTweet(tweet){
 
-  var twitterService = getService();
+  const twitterService = getService();
   if (twitterService.hasAccess()) {
     // 投稿
     var tweet = tweet + " - " + Utilities.formatDate(new Date(), "JST", "MMM d (E) h:mm a");
@@ -16,7 +16,7 @@ function postTweet(tweet){
 
 function postTweetWithImage(tweet, image){
 
-  var twitterService = getService();
+  const twitterService = getService();
   if (twitterService.hasAccess()) {
      var imageOption = {
        'method':"POST",
@@ -55,8 +55,8 @@ function getService() {
  
 //  認証成功時に呼び出される処理を定義
 function authCallback(request) {
-  var service = getService();
-  var authorized = service.handleCallback(request);
+  const service = getService();
+  const authorized = service.handleCallback(request);
   if (authorized) {
     return HtmlService.createHtmlOutput('success!!');
   } else {
