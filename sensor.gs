@@ -1,24 +1,26 @@
 function recordSensorData() {
   const deviceData = getNatureRemoData("devices");　　　　//data取得
   const lastSensorData = getLastData("sensor");　　　　　//最終data取得
-  const weatherData = getWeatherData();　　　　//data取得
+  const weatherData = getWeatherData('current');　　　　//data取得
   const absoluteZero = -273.15
   
   var arg = {
     te:deviceData[0].newest_events.te.val,　　//温度
     hu:deviceData[0].newest_events.hu.val,　　//湿度
     il:deviceData[0].newest_events.il.val,　　//照度
-    ote:(weatherData.main.temp + absoluteZero),　　
-    ohu:weatherData.main.humidity,　　
-    opr:weatherData.main.pressure,
-    icon:weatherData.weather[0].icon,
-    desc:weatherData.weather[0].description,
+    ote:(weatherData.current.temp + absoluteZero),　　
+    ohu:weatherData.current.humidity,　　
+    opr:weatherData.current.pressure,
+    icon:weatherData.current.weather[0].icon,
+    desc:weatherData.current.weather[0].description,
   }
   
-  if('rain' in weatherData){
-    arg["rain"] = weatherData.rain["1h"];
+  if('rain' in weatherData.current){
+    if (weatherData.current.rain["1h"]){
+      arg["rain"] = weatherData.current.rain["1h"];
+    }
   }
-      
+  
   setSensorData(arg, lastSensorData + 1);
   postSensorData(arg, lastSensorData + 1);
 }

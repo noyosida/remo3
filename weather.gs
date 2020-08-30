@@ -1,12 +1,12 @@
 const openWeatherMapURL = "http://api.openweathermap.org/data/2.5/"
 
-function postForecast(){
-  const forecastData = getHourlyForecastData();
+function postHourlyForecast(){
+  const forecastData = getWeatherData('hourly');
   let tweet = ""
   
   for( var i = 1; i <= 12; i++) { 
     date = new Date(forecastData.hourly[i].dt * 1000)
-    tweet += Utilities.formatDate(date,"JST", "ha: ") 
+    tweet += Utilities.formatDate(date, "JST", "ha: ") 
     + getWeatherEmoji(forecastData.hourly[i].weather[0].icon)
 
     if('rain' in forecastData.hourly[i]){
@@ -21,29 +21,50 @@ function postForecast(){
   postTweet(tweet)
 }
 
-function getHourlyForecastData(){
-  const url = openWeatherMapURL 
+function postDailyForecast(){
+  const forecastData = getWeatherData('daily');
+  let tweet = ""
+  
+  for( var i = 1; i <= 7; i++) { 
+    date = new Date(forecastData.daily[i].dt * 1000)
+    tweet += Utilities.formatDate(date, "JST", "MMM dd (E): ") 
+    + getWeatherEmoji(forecastData.daily[i].weather[0].icon)
+
+    if('rain' in forecastData.daily[i]){
+      tweet += Utilities.formatString("%.1f", forecastData.daily[i].rain)
+    }else{
+      tweet += "0"
+    }    
+     
+    tweet += Utilities.formatString("mm (%.0f%)\n", forecastData.daily[i].pop * 100)
+  }
+
+  postTweet(tweet)
+}
+
+function getWeatherData(type){
+  let url = openWeatherMapURL 
   + "onecall?lat=" 
   + PropertiesService.getScriptProperties().getProperty("LAT")
   + "&lon=" 
   + PropertiesService.getScriptProperties().getProperty("LON") 
-  + "&exclude=daily,current,minutely&" 
-  + "&APPID=" 
-  + PropertiesService.getScriptProperties().getProperty("WEATHER_API_KEY");
+
+  switch(type){
+    case 'daily':
+      url += "&exclude=hourly,current,minutely&" 
+      break;
+    case 'hourly':
+      url += "&exclude=daily,current,minutely&" 
+      break;
+    case 'current':
+      url += "&exclude=daily,hourly,minutely&" 
+      break;
+  }
+  
+  url += "&APPID=" + PropertiesService.getScriptProperties().getProperty("WEATHER_API_KEY");
   const response = UrlFetchApp.fetch(url);
   
   return JSON.parse(response);  
-}
-
-function getWeatherData(){
-  const url = openWeatherMapURL 
-  + "weather?zip=" 
-  + PropertiesService.getScriptProperties().getProperty("ZIP_CODE") 
-  + "&APPID="
-  + PropertiesService.getScriptProperties().getProperty("WEATHER_API_KEY");
-  const response = UrlFetchApp.fetch(url);
-  
-  return JSON.parse(response);
 }
 
 function getWeatherEmoji(id){
