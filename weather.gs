@@ -3,18 +3,20 @@ function postForecast(){
   var response = UrlFetchApp.fetch(url);
   var forecastData = JSON.parse(response);
 
-  var tweet = "Today's forecast: \n"
+  var tweet = "Hourly Weather: \n"
   
   for( var i = 0; i < 12; i++) { 
     date = new Date(forecastData.hourly[i].dt * 1000)
-    tweet += Utilities.formatDate(date,"JST", "ha: ")
+    tweet += Utilities.formatDate(date,"JST", "ha: ") 
+    + getWeatherEmoji(forecastData.hourly[i].weather[0].icon)
+
     if('rain' in forecastData.hourly[i]){
-      tweet += Utilities.formatString("%2.1f", forecastData.hourly[i].rain["1h"])
+      tweet += Utilities.formatString("%.1f", forecastData.hourly[i].rain["1h"])
     }else{
       tweet += "0"
     }    
      
-    tweet += Utilities.formatString("mm (%2.0f%)\n", forecastData.hourly[i].pop * 100)
+    tweet += Utilities.formatString("mm (%.0f%)\n", forecastData.hourly[i].pop * 100)
   }
 
   postTweet(tweet)
