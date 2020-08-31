@@ -1,9 +1,42 @@
+function postMinutelyForecast(){
+  const forecastData = getWeatherData('minutely');
+
+  if (forecastData.minutely[0].precipitation != 0){
+    return;
+  }
+  
+  let i = 1;  
+  while(i < forecastData.minutely.length){
+    if (forecastData.minutely[i].precipitation != 0){
+      break;
+    }
+    i++;
+  }
+
+  let tweet = ""
+  
+  for ( let j = 0; j < 12; j++){
+    if(i == forecastData.minutely.length){
+      break;
+    }
+    date = new Date(forecastData.minutely[i].dt * 1000)
+    tweet += Utilities.formatDate(date, "JST", "h:mm a: ") 
+    tweet += Utilities.formatString("%.1fmm\n", forecastData.minutely[i].precipitation)
+    i++;
+  }
+
+  if(tweet){
+    postTweet(tweet)
+  }
+}
+
+
 function postHourlyForecast(){
   const forecastData = getWeatherData('hourly');
   let tweet = ""
   
-  for( var i = 1; i <= 12; i++) { 
-    date = new Date(forecastData.hourly[i].dt * 1000)
+  for( let i = 1; i <= 12; i++) { 
+    let date = new Date(forecastData.hourly[i].dt * 1000)
     tweet += Utilities.formatDate(date, "JST", "ha: ") 
     + getWeatherEmoji(forecastData.hourly[i].weather[0].icon)
 
