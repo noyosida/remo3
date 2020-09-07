@@ -1,13 +1,13 @@
 function postMinutelyForecast(){
   const forecastData = getWeatherData('minutely');
 
-  if (forecastData.minutely[0].precipitation != 0){
+  if (forecastData.minutely[0].precipitation >= 1.0){
     return;
   }
   
   let i = 1;  
   while(i < forecastData.minutely.length){
-    if (forecastData.minutely[i].precipitation != 0){
+    if (forecastData.minutely[i].precipitation >= 1.0){
       break;
     }
     i++;
@@ -19,7 +19,15 @@ function postMinutelyForecast(){
     if(i == forecastData.minutely.length){
       break;
     }
-    date = new Date(forecastData.minutely[i].dt * 1000)
+    
+    const date = new Date(forecastData.minutely[i].dt * 1000)
+
+    if (j == 0){
+      const current = new Date()
+      const diff = Math.floor(date.getTime() / 1000 / 60) - Math.floor(current.getTime() / 1000 / 60)
+      tweet += "It will rain in " +  Utilities.formatString("%d", diff) + " min.\n"
+    }
+    
     tweet += Utilities.formatDate(date, "JST", "h:mm a: ") 
     tweet += Utilities.formatString("%.1fmm\n", forecastData.minutely[i].precipitation)
     i++;
@@ -99,29 +107,27 @@ function getWeatherData(type){
 
 function getWeatherEmoji(id){
 
-  Logger.log(id);
-  
   if(id == "01d"){
     return "☀️"
   }
   else if(id == "01n"){
     return "⭐️️"
   }
-  else if(id.indexOf("03") || id.indexOf("04")){
+  else if(id.indexOf("02") != -1 || id.indexOf("03") != -1 || id.indexOf("04") != -1){
     return "☁️"
   }
-  else if(id.indexOf("50")){
-    return "🌫"
-  }  
-  else if(id.indexOf("13")){
-    return "⛄️"
-  }  
-  else if(id.indexOf("09") || id.indexOf("10")){
+  else if(id.indexOf("09") != -1 || id.indexOf("10") != -1){
     return "☔️"
   }  
-  else if(id.indexOf("11")){
+  else if(id.indexOf("11") != -1){
     return "⛈"
   }
+  else if(id.indexOf("13") != -1){
+    return "⛄️"
+  }  
+  else if(id.indexOf("50") != -1){
+    return "🌫"
+  }  
   else
     return ""; //OpenWeatherMap側に大幅な仕様変更がない限り，ここにはこない
 }
