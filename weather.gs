@@ -1,6 +1,11 @@
 function postMinutelyForecast(){
   const forecastData = getWeatherData('minutely');
 
+  if (forecastData.minutely.length == 0){
+    Logger.log(forecastData)
+    return 0;
+  }
+     
   if (forecastData.minutely[0].precipitation >= 1.0){
     return;
   }
