@@ -8,6 +8,6 @@ function getNatureRemoData(endpoint) {　　　　　　//Remoのapiをお借り
     "method" : "get",
     "headers" : headers,
   };
-
+  
   return JSON.parse(UrlFetchApp.fetch("https://api.nature.global/1/" + endpoint, options));
 }
