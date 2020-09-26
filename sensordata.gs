@@ -13,6 +13,7 @@ function recordSensorData() {
     opr:weatherData.current.pressure,
     icon:weatherData.current.weather[0].icon,
     desc:weatherData.current.weather[0].description,
+    CO2:getCo2Concentration(),
   }
   
   if('rain' in weatherData.current){
@@ -26,7 +27,7 @@ function recordSensorData() {
 }
 
 function setSensorData(data, row) {  
-  getSheet('sensor').getRange(row, 1, 1, 8).setValues([[new Date(), data.te, data.hu, data.il, data.ote, data.ohu, data.opr, data.rain]])
+  getSheet('sensor').getRange(row, 1, 1, 9).setValues([[new Date(), data.te, data.hu, data.il, data.ote, data.ohu, data.opr, data.rain, data.CO2]])
 }
 
 function postSensorData(data, row){
@@ -35,18 +36,23 @@ function postSensorData(data, row){
   const lastOte = getSheet('sensor').getRange(row - 1, 5).getValue();
   const lastOhu = getSheet('sensor').getRange(row - 1, 6).getValue();
   const lastOpr = getSheet('sensor').getRange(row - 1, 7).getValue();
-
+  
   let lastRain = 0;
   if (!getSheet('sensor').getRange(row -1 , 8).isBlank()){
     lastRain = getSheet('sensor').getRange(row - 1 , 8).getValue();
   }
+
+  const lastCO2 = getSheet('sensor').getRange(row - 1, 9).getValue();
+
   
   let tweet = "🏠" 
   + generateFloatingPointValueString (lastTe, data.te, "℃") + ', ' 
   + generateIntegerValueString (lastHu, data.hu, "%") + "\n"
   + "⛺" + generateFloatingPointValueString (lastOte, data.ote, "℃") + ', ' 
   + generateIntegerValueString (lastOhu, data.ohu, "%") + ", " 
-  + generateIntegerValueString (lastOpr, data.opr, "hPa") 
+  + generateIntegerValueString (lastOpr, data.opr, "hPa") + ", "
+  + generateIntegerValueString (lastCO2, data.CO2, "ppm") + ", "
+  
   
   if ('rain' in data){
     tweet += ", "  + generateFloatingPointValueString (lastRain, data.rain, "mm") 

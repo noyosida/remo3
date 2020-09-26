@@ -10,7 +10,7 @@ function postTweet(tweet){
     }
     twitterService.fetch("https://api.twitter.com/1.1/statuses/update.json", sendOption);   
   } else {
-    Logger.log(service.getLastError());
+    Logger.log(twitterService.getLastError());
   }
 }  
 
