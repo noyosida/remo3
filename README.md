@@ -14,6 +14,7 @@
   - ZIP_CODE (OpenWeatherMap)
   - LON (OpenWeatherMap) ※経度
   - LAT (OpenWeatherMap) ※緯度
+ - co2sensor.gsのdoPost()は，WebAppとして公開する．
  - CO2センサの情報をHTTP POSTでGoogleスプレッドシートに追加するArduinoのコードはこちら　https://github.com/noyosida/POSTCO2byMH-Z19
  
 # 謝辞
