@@ -13,7 +13,7 @@ function recordSensorData() {
     opr:weatherData.current.pressure,
     icon:weatherData.current.weather[0].icon,
     desc:weatherData.current.weather[0].description,
-    CO2:getCo2Concentration(),
+    CO2:getCO2Concentration(),
   }
   
   if('rain' in weatherData.current){
