@@ -14,6 +14,7 @@
   - ZIP_CODE (OpenWeatherMap)
   - LON (OpenWeatherMap) ※経度
   - LAT (OpenWeatherMap) ※緯度
+ - CO2センサの情報をHTTP POSTでGoogleスプレッドシートに追加するArduinoのコードはこちら　https://github.com/noyosida/POSTCO2byMH-Z19
  
 # 謝辞
 Nature Remo APIとの連携およびGoogleスプレッドシートの連携部分については，以下のサイトのコードを利用させていただきました．
