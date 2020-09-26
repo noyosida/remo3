@@ -3,7 +3,7 @@ function doPost(data) {
   const CO2 = data.parameter.CO2;
   
   // パラメータがそろっていなければ終了
-  if(co2){
+  if(CO2){
     try{
       // スプレッドシート情報収集
       const sheet = getSheet('post')
