@@ -47,11 +47,11 @@ function postSensorData(data, row){
   
   let tweet = "🏠" 
   + generateFloatingPointValueString (lastTe, data.te, "℃") + ', ' 
-  + generateIntegerValueString (lastHu, data.hu, "%") + "\n"
+  + generateIntegerValueString (lastHu, data.hu, "%") + ', '
+  + generateIntegerValueString (lastCO2, data.CO2, "ppm") + "\n"
   + "⛺" + generateFloatingPointValueString (lastOte, data.ote, "℃") + ', ' 
   + generateIntegerValueString (lastOhu, data.ohu, "%") + ", " 
-  + generateIntegerValueString (lastOpr, data.opr, "hPa") + ", "
-  + generateIntegerValueString (lastCO2, data.CO2, "ppm") + ", "
+  + generateIntegerValueString (lastOpr, data.opr, "hPa") 
   
   
   if ('rain' in data){

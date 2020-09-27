@@ -7,10 +7,8 @@ function doPost(data) {
     try{
       // スプレッドシート情報収集
       const sheet = getSheet('post')
-          date = new Date();
       // スプレッドシートへ書き込み
-      sheet.appendRow([date, CO2]); 
-      
+      sheet.appendRow([new Date(), CO2]);       
     }catch(e){
       console.log(e);
     }
