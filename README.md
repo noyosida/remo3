@@ -11,7 +11,6 @@
   - CONSUMER_API_KEY (Twitter) 
   - REMO_ACCESS_TOKEN (REMO) 
   - WEATHER_API_KEY (OpenWeatherMap)
-  - ZIP_CODE (OpenWeatherMap)
   - LON (OpenWeatherMap) ※経度
   - LAT (OpenWeatherMap) ※緯度
  - co2sensor.gsのdoPost()は，WebAppとして公開する．
