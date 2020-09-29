@@ -27,24 +27,22 @@ function recordSensorData() {
 }
 
 function setSensorData(data, row) {  
-  getSheet('sensor').getRange(row, 1, 1, 9).setValues([[new Date(), data.te, data.hu, data.il, data.ote, data.ohu, data.opr, data.rain, data.CO2]])
+  getSheet('sensor').getRange(row, 1, 1, 9).setValues([[new Date(), data.te, data.CO2, data.hu, data.il, data.ote, data.ohu, data.opr, data.rain]])
 }
 
 function postSensorData(data, row){
   const lastTe = getSheet('sensor').getRange(row - 1, 2).getValue();
-  const lastHu = getSheet('sensor').getRange(row - 1, 3).getValue();
-  const lastOte = getSheet('sensor').getRange(row - 1, 5).getValue();
-  const lastOhu = getSheet('sensor').getRange(row - 1, 6).getValue();
-  const lastOpr = getSheet('sensor').getRange(row - 1, 7).getValue();
+  const lastCO2 = getSheet('sensor').getRange(row - 1, 3).getValue();
+  const lastHu = getSheet('sensor').getRange(row - 1, 4).getValue();
+  const lastOte = getSheet('sensor').getRange(row - 1, 6).getValue();
+  const lastOhu = getSheet('sensor').getRange(row - 1, 7).getValue();
+  const lastOpr = getSheet('sensor').getRange(row - 1, 8).getValue();
   
   let lastRain = 0;
-  if (!getSheet('sensor').getRange(row -1 , 8).isBlank()){
-    lastRain = getSheet('sensor').getRange(row - 1 , 8).getValue();
+  if (!getSheet('sensor').getRange(row -1 , 9).isBlank()){
+    lastRain = getSheet('sensor').getRange(row - 1 , 9).getValue();
   }
 
-  const lastCO2 = getSheet('sensor').getRange(row - 1, 9).getValue();
-
-  
   let tweet = "🏠" 
   + generateFloatingPointValueString (lastTe, data.te, "℃") + ', ' 
   + generateIntegerValueString (lastHu, data.hu, "%") + ', '
@@ -91,11 +89,11 @@ function getTEMPandHUMChart(range){
   .addRange(range)
   .setOption("series", {
     0: {targetAxisIndex:0, labelInLegend: "TEMP", color: 'red'}, // 第1系列は左のY軸を使用
-    1: {targetAxisIndex:1, labelInLegend: "HUM", color: 'blue'}, // 第2系列は右のY軸を使用 
+    1: {targetAxisIndex:1, labelInLegend: "CO2", color: 'blue'}, // 第2系列は右のY軸を使用 
   })
   .setOption("vAxes", {
     0: {title:'℃'}, 
-    1: {title:'%'}, 
+    1: {title:'ppm'}, 
   })
   .build();
 }
