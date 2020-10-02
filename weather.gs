@@ -1,6 +1,12 @@
 function postMinutelyForecast(){
   const forecastData = getWeatherData('minutely');
 
+  if ('length' in forecastData.minutely == false)
+  {
+    Logger.log(forecastData)
+    return;
+  }
+  
   if (forecastData.minutely.length == 0){
     Logger.log(forecastData)
     return;
