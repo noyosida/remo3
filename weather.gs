@@ -1,7 +1,7 @@
 function postMinutelyForecast(){
   const forecastData = getWeatherData('minutely');
 
-  if ('length' in forecastData.minutely == false)
+  if (Array.isArray(forecastData.minutely) == false)
   {
     Logger.log(forecastData)
     return;
